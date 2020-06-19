@@ -1,0 +1,5 @@
+trigger CheckEditFoods on Food__c (before insert, before update) {
+	List<Food__c> foods = Trigger.new;
+    EditAccountFromFood editAccFromFood = new EditAccountFromFood();
+    editAccFromFood.updateAccountsFoodEditTime(foods);
+}

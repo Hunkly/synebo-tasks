@@ -1,0 +1,29 @@
+public class EditAccountFromFood {
+    
+    public void updateAccountsFoodEditTime(List<Food__c> foods){
+        List<String> accIds = new List<String>();
+        getAccountIds(foods);
+    }
+    
+    private void getAccountIds(List<Food__c> foods){
+        List<String> accIds = new List<String>();
+        for(Food__c food: foods){
+            if(food.Account__c != null){
+                accIds.add(food.Account__c);
+            }
+    	}
+        getAccountsByQuery(accIds);
+    }
+    
+    private void getAccountsByQuery(List<String> accountIds) {
+        List<Account__c> accounts = [SELECT Name, Birthdate__c, Country__c, CreatedById, Current_city__c, Description__c, FoodEditTime__c, LastModifiedById, OwnerId, Phonenumber__c from Account__c WHERE Id =:accountIds];
+    	updateAccounts(accounts);
+    }
+    
+    private void updateAccounts(List<Account__c> accounts){
+        for(Account__c account: accounts){
+        	account.FoodEditTime__c = DateTime.now();
+        }
+        update accounts;
+    }
+}
