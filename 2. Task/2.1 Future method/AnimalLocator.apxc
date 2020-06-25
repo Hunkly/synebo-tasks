@@ -1,0 +1,39 @@
+global class AnimalLocator {
+    
+    private static Map<Decimal,AnimalModel> animalModelMap = new Map<Decimal,AnimalModel>();
+    
+    @future(callout=true)
+    public static void getAnimalNameById(List<Id> animalIdList){
+        
+        List<Animal__c> animalList = [SELECT Name, id__c from Animal__c where Id =: animalIdList];
+        
+        if(animalList.size()>0){
+            for(Animal__c animal: animalList){
+                AnimalModel animalModel = new AnimalModel();
+                if(animalModelMap.containsKey(animal.id__c)){
+                    animalModel = animalModelMap.get(animal.id__c);
+                } else {
+                    try{
+                        Http http = new Http();
+                        HttpRequest request = new HttpRequest();
+                        request.setEndpoint('https://th-apex-http-callout.herokuapp.com/animals/'+animal.id__c);
+                        request.setMethod('GET');
+                        HttpResponse response = http.send(request);
+                        Map<String,Object> animalResponse = new Map<String,Object>();
+                        if (response.getStatusCode() == 200) {
+                            AnimalModel results = (AnimalModel) JSON.deserialize(response.getBody(), AnimalModel.class);
+                            animalModelMap.put(results.animal.id, results);
+                            animalModel = animalModelMap.get(animal.id__c);
+                        }
+                    } catch (System.CalloutException e) {
+                        throw e;
+                    }
+                }
+                animal.Second_name__c = animalModel.animal.Name;
+                animal.Eats__c = animalModel.animal.eats;
+                animal.Says__c = animalModel.animal.says;
+            }
+        }
+        update animalList;
+    }
+}

@@ -1,0 +1,7 @@
+global class DeleteAllAnimals implements Schedulable {
+    global void execute(SchedulableContext ctx) {
+        list<Animal__c> animalList = new List<Animal__c>();
+        animalList = [select Name, id__c, Second_name__c, Eats__c, Says__c from Animal__c];
+        delete animalList;
+    }
+}
