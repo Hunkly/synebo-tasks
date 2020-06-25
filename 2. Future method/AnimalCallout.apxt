@@ -1,0 +1,7 @@
+trigger AnimalCallout on Animal__c (after insert) {
+    List<Id> animalIdList = new List<Id>();
+    for(Animal__c animal : Trigger.new){
+        animalIdList.add(animal.Id);
+    }
+    AnimalLocator.getAnimalNameById(animalIdList);
+}
