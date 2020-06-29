@@ -1,0 +1,21 @@
+global class LeadDomainParser implements 
+    Database.Batchable<sObject>, Database.Stateful {
+    
+    global Integer recordsProcessed = 0;
+    global Database.QueryLocator start(Database.BatchableContext bc) {
+        return Database.getQueryLocator(
+            'SELECT Id, LastName, Company, Email, ' +
+            'Domain__c, Phone FROM Lead '
+        );
+    }
+    global void execute(Database.BatchableContext bc, List<Lead> scope){
+        for(Lead lead : scope) {
+           lead.Domain__c = lead.Email.replaceAll('@','');
+           recordsProcessed = recordsProcessed + 1;
+        }
+        update scope;
+    }    
+    global void finish(Database.BatchableContext bc){
+        System.debug(recordsProcessed + ' records processed. Shazam!');
+    }    
+}

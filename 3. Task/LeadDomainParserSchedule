@@ -1,0 +1,8 @@
+global class LeadDomainParserSchedule implements Schedulable
+{
+    global void execute(SchedulableContext sc)
+    {
+        LeadDomainParser l = new LeadDomainParser ();
+        database.executebatch(l,200);
+    }
+}

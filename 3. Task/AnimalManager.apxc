@@ -1,0 +1,47 @@
+@RestResource(urlMapping='/Animals/*')
+global without sharing class AnimalManager {
+	@HttpGet
+    global static Animal__c getAnimalById() {
+       	RestRequest request = RestContext.request;
+        String identificatorParam = request.requestURI.substring(
+          request.requestURI.lastIndexOf('/')+1);
+        Animal__c result = [SELECT Name,Eats__c,Says__c,Second_name__c,AnimalId__c
+                        FROM Animal__c
+                        WHERE Id = :identificatorParam];
+        RestContext.response.addHeader('Content-Type', 'application/json');
+        RestContext.response.responseBody = Blob.valueOf(JSON.serialize(result));
+        System.debug('RESULT ' + result);
+        return result;
+    }
+    @HttpPut
+    global static Id upsertAnimal(String Id, String name, String secondName, String eats, String says, Decimal animalId) {
+        Animal__c thisAnimal = new Animal__c(
+            Id=Id,
+            AnimalId__c=animalId,
+            Name=name,
+            Eats__c=eats,
+            Says__c=says,
+            Second_name__c=secondName);
+        upsert thisAnimal;
+        return thisAnimal.Id;
+    }
+    @HttpPost
+    global static ID createAnimal(String name, String secondName, String eats, String says, Decimal animalId) {
+        Animal__c thisAnimal = new Animal__c(
+            AnimalId__c=animalId,
+            Name=name,
+            Eats__c=eats,
+            Says__c=says,
+            Second_name__c=secondName);
+        insert thisAnimal;
+        return thisAnimal.Id;
+    }   
+    @HttpDelete
+    global static void deleteAnimal() {
+        RestRequest request = RestContext.request;
+        String identificatorParam = request.requestURI.substring(
+            request.requestURI.lastIndexOf('/')+1);
+        Animal__c thisAnimal = [SELECT Id FROM Animal__c WHERE Id = :identificatorParam];
+        delete thisAnimal;
+    }  
+}
